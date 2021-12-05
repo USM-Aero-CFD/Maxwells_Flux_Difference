@@ -1,0 +1,3 @@
+// the configured options and settings for Tutorial
+# define Maxwells_Flux_Difference_VERSION_MAJOR @Maxwells_Flux_Difference_VERSION_MAJOR@
+# define Maxwells_Flux_Difference_VERSION_MINOR @Maxwells_Flux_Difference_VERSION_MINOR@
