@@ -15,7 +15,7 @@ class Compilation3D: public Computation3D
 		double sumOfSquare(double* const &, double* const &, const int &) const;
 		void leastSquareCalculation(double* const &, double* const &, const int &);
 		void gridIteration(const bool &, const int &, const char &,
-			 				const char &, const char &,
+			 				const char &, const char &, const double &, const double &,
 							const string &, const string &, const string &, const string &);
 		Compilation3D();
 		~Compilation3D();

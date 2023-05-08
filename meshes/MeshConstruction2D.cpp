@@ -13,8 +13,8 @@ MeshConstruction2D::MeshConstruction2D(const int & x_Number, const int & y_Numbe
 	yDelta = static_cast <double> ((yLast - yInitial) / yNumber);
 
     wedgeAngle = M_PI / 20.0;
-	//elementNumber = 2 * xNumber * yNumber;
-	//nodeNumber = (xNumber + 1) * (yNumber + 1) + (xNumber / 2);
+	// elementNumber = 2 * xNumber * yNumber;
+	// nodeNumber = (xNumber + 1) * (yNumber + 1);
 	elementNumber = 2 * xNumber * yNumber + yNumber;
 	nodeNumber = (xNumber + 1) * (yNumber + 1) + xNumber / 2 + yNumber / 2;
 
@@ -199,13 +199,30 @@ void MeshConstruction2D::constructNode()
     };
 }
 
+// void MeshConstruction2D::constructNode()
+// {
+// 	int i = 0;
+// 	for (int iy = 0; iy <= yNumber; iy++)
+// 		for (int ix = 0; ix <= xNumber; ix++)
+// 		{
+// 			node[i].coordinate = new double [2];
+// 			node[i].coordinate[0] = xInitial + ix * xDelta;
+// 			node[i].coordinate[1] = yInitial + iy * yDelta;
+// 			if (ix == 0 || ix == xNumber || iy == 0 || iy == yNumber)
+// 				node[i].boundary = 'A';
+// 			else
+// 				node[i].boundary = 'N';
+// 			i++;
+// 		};
+// }
+
 void MeshConstruction2D::constructElement()
 {
-		// element[e].boundaryType = 'A' is inlet
-		// element[e].boundaryType = 'B' is PEC
-		// element[e].boundaryType = 'C' is outlet
-		// element[e].boundaryType = 'D' is side boundary
-		// element[e].boundaryType = 'N' is not on the boundary
+	// element[e].boundaryType = 'A' is inlet
+	// element[e].boundaryType = 'B' is PEC
+	// element[e].boundaryType = 'C' is outlet
+	// element[e].boundaryType = 'D' is side boundary
+	// element[e].boundaryType = 'N' is not on the boundary
 
 	int e = 0;
     for (int iy = 0; iy < yNumber / 2; iy++)
@@ -464,13 +481,63 @@ void MeshConstruction2D::constructElement()
     };
 }
 
+// void MeshConstruction2D::constructElement()
+// {
+// 	int e = 0;
+// 	for (int iy = 0; iy < yNumber; iy++)
+// 		for (int ix = 0; ix < xNumber; ix++)
+// 		{
+// 			element[e].globalNode = new int [3];
+// 			element[e].globalNode[0] = iy * (xNumber + 1) + ix % (xNumber + 1);
+// 			element[e].globalNode[1] = (iy + 1) * (xNumber + 1) + ix % (xNumber + 1) + 1;
+// 			element[e].globalNode[2] = (iy + 1) * (xNumber + 1) + ix % (xNumber + 1);
+// 			if (ix == 0)
+// 			{
+// 				element[e].boundaryVertex = 1;
+// 				element[e].boundaryType = 'A';
+// 			}
+// 			else if (iy == yNumber - 1)
+// 			{
+// 				element[e].boundaryVertex = 0;
+// 				element[e].boundaryType = 'A';
+// 			}
+// 			else
+// 			{
+// 				element[e].boundaryVertex = -1;
+// 				element[e].boundaryType = 'N';
+// 			};
+// 			e++;
+
+// 			element[e].globalNode = new int [3];
+// 			element[e].globalNode[0] = iy * (xNumber + 1) + ix % (xNumber + 1);
+// 			element[e].globalNode[1] = iy * (xNumber + 1) + ix % (xNumber + 1) + 1;
+// 			element[e].globalNode[2] = (iy + 1) * (xNumber + 1) + ix % (xNumber + 1) + 1;
+// 			if (iy == 0)
+// 			{
+// 				element[e].boundaryVertex = 2;
+// 				element[e].boundaryType = 'A';
+// 			}
+// 			else if (ix == xNumber - 1)
+// 			{
+// 				element[e].boundaryVertex = 0;
+// 				element[e].boundaryType = 'A';
+// 			}
+// 			else
+// 			{
+// 				element[e].boundaryVertex = -1;
+// 				element[e].boundaryType = 'N';
+// 			};
+// 			e++;
+// 		}
+// }
+
 void MeshConstruction2D::randomizeGrid()
 {
 	for (int i = 0; i < nodeNumber; i++)
 	{
 		if (node[i].boundary == 'N')
 		{
-			double displacingRadius = 0.3 * (static_cast<double> (rand()) / RAND_MAX) * xDelta;
+			double displacingRadius = 0.35 * (static_cast<double> (rand()) / RAND_MAX) * xDelta;
 			double displacingAngle = (static_cast<double> (rand()) / RAND_MAX) * 2.0 * M_PI;
 
 			node[i].coordinate[0] = node[i].coordinate[0] + displacingRadius * cos(displacingAngle);
@@ -496,7 +563,7 @@ void MeshConstruction2D::printElement() const
 {
 	ofstream outputElement;
 	string emptyspace = " ";
-	outputElement.open("Element " + to_string(elementNumber) + ".txt");
+	outputElement.open("Element " + to_string(xNumber) + ".txt");
 	outputElement << elementNumber << endl;
 	for (int e = 0; e < elementNumber; e++)
 		outputElement << showpoint << setprecision(10) << setw(20) << element[e].cellArea
@@ -541,6 +608,8 @@ void MeshConstruction2D::printGmsh() const
 		outputGmsh << (e + 1)
 						<< setw(12) << element[e].globalNode[0] << setw(12) << element[e].globalNode[1] << setw(12) << element[e].globalNode[2] << endl;
 	outputGmsh << "$EndElements" << endl;
+
+    outputGmsh.close();
 }
 
 void MeshConstruction2D::generateGrid()
@@ -550,6 +619,13 @@ void MeshConstruction2D::generateGrid()
 	if (randomization)
 		randomizeGrid();
     calculateCellArea();
+
+    ofstream debugElement;
+    debugElement.open("Debug_Element.txt");
+    debugElement << "Element number is " << elementNumber << endl;
+    for (int e = 0; e < elementNumber; e++)
+        debugElement << setw(10) << element[e].globalNode[0] << setw(10) << element[e].globalNode[1] << setw(10) << element[e].globalNode[2] << setw(10) << element[e].boundaryType << endl;
+    debugElement.close();
 
     printElement();
 	printNode();

@@ -2,6 +2,8 @@
 
 Initialization3D::~Initialization3D()
 {
+	cout << "Destruct Initialization3D" << endl;
+
 	for (int h = 0; h < tetrahedronNumber; h++)
 	{
 		delete [] tetrahedron[h].globalNode; tetrahedron[h].globalNode = NULL;
@@ -19,7 +21,6 @@ Initialization3D::~Initialization3D()
 		delete [] crossSection[crosssection].coordinate; crossSection[crosssection].coordinate = NULL;
 	};
 	delete [] crossSection; crossSection = NULL;
-
 }
 
 void Initialization3D::initializeGmsh()
@@ -42,19 +43,21 @@ void Initialization3D::initializeGmsh()
 				for (int i = 0; i < nodeNumber; i++)
 					inputGmsh >> index;
 
-				for (int i = 0; i < nodeNumber; i++)
+				for (int i = 0; i < nodeNumber; i++) {
+					node[i].coordinate = new double [3];
 					inputGmsh >> node[i].coordinate[0] >> node[i].coordinate[1] >> node[i].coordinate[2];
+				};
 			}
 			else if ( line.find("$Elements") == static_cast<string::size_type>(0) ) {
 				inputGmsh >> block >> tetrahedronNumber >> minIndex >> maxIndex;
 				inputGmsh >> dimension >> tag >> parameter >> tetrahedronNumber;
 
-				for (int h = 0; h < tetrahedronNumber; h++)
-					inputGmsh >> index;
-
-				for (int h = 0; h < tetrahedronNumber; h++)
-					inputGmsh >> tetrahedron[h].globalNode[0] >> tetrahedron[h].globalNode[1]
-			                  >> tetrahedron[h].globalNode[2] >> tetrahedron[h].globalNode[3];
+				for (int h = 0; h < tetrahedronNumber; h++) {
+					tetrahedron[h].globalNode = new int [4];
+					inputGmsh >> index
+								>> tetrahedron[h].globalNode[0] >> tetrahedron[h].globalNode[1]
+								>> tetrahedron[h].globalNode[2] >> tetrahedron[h].globalNode[3];
+				};
 			}
 		}
 	}
@@ -64,6 +67,8 @@ void Initialization3D::initializeGmsh()
 
 void Initialization3D::initializeTetrahedron()
 {
+	tetrahedron = new tetrahedronArray [tetrahedronNumber];
+
 	for (int h = 0; h < tetrahedronNumber; h++)
 	{
 		inputTetrahedron >> tetrahedron[h].volume >> tetrahedron[h].boundaryVertex >> tetrahedron[h].boundaryType;
@@ -74,6 +79,8 @@ void Initialization3D::initializeTetrahedron()
 
 void Initialization3D::initializeNode()
 {
+	node = new nodeArray [nodeNumber];
+
 	for (int i = 0; i < nodeNumber; i++)
 	{
 		/* node[i].UVARIABLELEVEL[ki][0] - initial */
@@ -89,16 +96,20 @@ void Initialization3D::initializeNode()
 
 void Initialization3D::initializeCrossSection()
 {
-    for (int crosssection = 0; crosssection < crossSectionNumber; crosssection++)
-        inputCrossSection >> crossSection[crosssection].coordinate[0] >> crossSection[crosssection].coordinate[1]
-                            >> crossSection[crosssection].coordinate[2] >> crossSection[crosssection].node;
+	crossSection = new crossSectionArray [crossSectionNumber];
+
+	for (int crosssection = 0; crosssection < crossSectionNumber; crosssection++) {
+		crossSection[crosssection].coordinate = new double [3];
+		inputCrossSection >> crossSection[crosssection].coordinate[0] >> crossSection[crosssection].coordinate[1]
+							>> crossSection[crosssection].coordinate[2] >> crossSection[crosssection].node;
+	};
 	inputCrossSection.close();
 }
 
-void Initialization3D::readMesh(const string & gmsh_File, const string & element_File, const string & node_File, const string & crossSection_File)
+void Initialization3D::readMesh(const string & gmsh_File, const string & tetrahedron_File, const string & node_File, const string & crossSection_File)
 {
 	inputGmsh.open(gmsh_File.c_str());
-	inputTetrahedron.open(element_File.c_str());
+	inputTetrahedron.open(tetrahedron_File.c_str());
 	inputNode.open(node_File.c_str());
 	inputCrossSection.open(crossSection_File.c_str());
 	inputTetrahedron >> tetrahedronNumber;

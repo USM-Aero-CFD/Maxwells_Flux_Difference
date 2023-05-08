@@ -2,6 +2,8 @@
 
 Initialization2D::~Initialization2D()
 {
+	cout << "Destruct Initialization2D" << endl;
+
 	for (int e = 0; e < elementNumber; e++)
 	{
 		delete [] element[e].globalNode; element[e].globalNode = NULL;
@@ -35,18 +37,19 @@ void Initialization2D::initializeGmsh()
 				for (int i = 0; i < nodeNumber; i++)
 					inputGmsh >> index;
 
-				for (int i = 0; i < nodeNumber; i++)
+				for (int i = 0; i < nodeNumber; i++) {
+					node[i].coordinate = new double [2];
 					inputGmsh >> node[i].coordinate[0] >> node[i].coordinate[1];
+				};
 			}
 			else if ( line.find("$Elements") == static_cast<string::size_type>(0) ) {
 				inputGmsh >> block >> elementNumber >> minIndex >> maxIndex;
 				inputGmsh >> dimension >> tag >> parameter >> elementNumber;
 
-				for (int e = 0; e < elementNumber; e++)
-					inputGmsh >> index;
-
-				for (int e = 0; e < elementNumber; e++)
-					inputGmsh >> element[e].globalNode[0] >> element[e].globalNode[1] >> element[e].globalNode[2];
+				for (int e = 0; e < elementNumber; e++) {
+					element[e].globalNode = new int [3];
+					inputGmsh >> index >> element[e].globalNode[0] >> element[e].globalNode[1] >> element[e].globalNode[2];
+				};
 			}
 		}
 	}
@@ -56,6 +59,8 @@ void Initialization2D::initializeGmsh()
 
 void Initialization2D::initializeElement()
 {
+	element = new elementArray [elementNumber];
+
 	for (int e = 0; e < elementNumber; e++)
 	{
 		inputElement >> element[e].cellArea >> element[e].boundaryVertex >> element[e].boundaryType;
@@ -65,6 +70,8 @@ void Initialization2D::initializeElement()
 
 void Initialization2D::initializeNode()
 {
+	node = new nodeArray [nodeNumber];
+
 	for (int i = 0; i < nodeNumber; i++)
 	{
 		/* node[i].UVARIABLELEVEL[ki][0] - initial */
@@ -72,7 +79,6 @@ void Initialization2D::initializeNode()
 		/* node[i].UVARIABLELEVEL[ki][2] - n */
 		/* node[i].UVARIABLELEVEL[ki][3] - error */
 		/* node[i].UVARIABLELEVEL[ki][4] - exact */
-
 
 		inputNode >> node[i].boundary;
 	};

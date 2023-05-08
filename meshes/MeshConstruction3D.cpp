@@ -21,6 +21,7 @@ MeshConstruction3D::MeshConstruction3D(const int & x_Number, const int & y_Numbe
 MeshConstruction3D::~MeshConstruction3D()
 {
 	cout << xNumber << "     Destruct GRID" << endl;
+
 	for (int i = 0; i < domainNodeNumber; i++)
 	{
 		delete [] domainNode[i].coordinate; domainNode[i].coordinate = NULL;
@@ -66,15 +67,15 @@ void MeshConstruction3D::constructNode()
                 domainNode[domainNodeNumber].coordinate[2] = zInitial + k * zDelta;
                 domainNode[domainNodeNumber].globalNumbering = - 1;
             };
-
-
+	
+	
     globalNodeNumber = 0;
     for (int k = 0; k <= zNumber; k++)
         for (int j = 0; j <= yNumber; j++)
             for (int i = 0; i <= xNumber; i++)
             {
                 domainNodeNumber = k * (xNumber + 1) * (yNumber + 1) + j * (xNumber + 1) + i;
-
+	
                 if (! (domainNode[domainNodeNumber].coordinate[0] > (- radius + xDelta / 10.0) && domainNode[domainNodeNumber].coordinate[0] < (radius - xDelta / 10.0)
                        && domainNode[domainNodeNumber].coordinate[1] > (- radius + yDelta / 10.0) && domainNode[domainNodeNumber].coordinate[1] < (radius - yDelta / 10.0)
                        && domainNode[domainNodeNumber].coordinate[2] > (- radius + zDelta / 10.0) && domainNode[domainNodeNumber].coordinate[2] < (radius - zDelta / 10.0)))
@@ -85,7 +86,7 @@ void MeshConstruction3D::constructNode()
                     globalNode[globalNodeNumber].coordinate[1] = domainNode[domainNodeNumber].coordinate[1];
                     globalNode[globalNodeNumber].coordinate[2] = domainNode[domainNodeNumber].coordinate[2];
                     domainNode[domainNodeNumber].globalNumbering = globalNodeNumber;
-
+	
                     if (k == 0)
                         globalNode[globalNodeNumber].boundary = 'A';
                     else if (i == 0 || i == xNumber || j == 0 || j == yNumber)
@@ -101,12 +102,27 @@ void MeshConstruction3D::constructNode()
                         globalNode[globalNodeNumber].boundary = 'B';
                     else
                         globalNode[globalNodeNumber].boundary = 'N';
-
+	
                     globalNodeNumber++;
                 };
             };
-
+	
     domainNodeNumber = (xNumber + 1) * (yNumber + 1) * (zNumber + 1);
+
+	// globalNodeNumber = (xNumber + 1) * (yNumber + 1) * (zNumber + 1);
+	// globalNode.resize(globalNodeNumber + 1);
+
+	// int i = 0;
+	// for (int iz = 0; iz <= zNumber; iz++)
+	// 	for (int iy = 0; iy <= yNumber; iy++)
+	// 		for (int ix = 0; ix <= xNumber; ix++)
+	// 		{
+	// 			globalNode[i].coordinate = new double [3];
+	// 			globalNode[i].coordinate[0] = xInitial + ix * xDelta;
+	// 			globalNode[i].coordinate[1] = yInitial + iy * yDelta;
+	// 			globalNode[i].coordinate[2] = zInitial + iz * zDelta;
+	// 			i++;
+	// 		}
 }
 
 void MeshConstruction3D::constructTetrahedron()
@@ -129,7 +145,7 @@ void MeshConstruction3D::constructTetrahedron()
                     globalTetrahedron[globalTetrahedronNumber].nodeNumbering[2] = domainNode[domainNodeNumber + (xNumber + 1) * (yNumber + 1) + (xNumber + 1) + 1].globalNumbering;
                     globalTetrahedron[globalTetrahedronNumber].nodeNumbering[3] = domainNode[domainNodeNumber + (xNumber + 1) + 1].globalNumbering;
                     globalTetrahedronNumber++;
-
+	
                     // Local tetrahedron 1
                     globalTetrahedron.resize(globalTetrahedronNumber + 1);
                     globalTetrahedron[globalTetrahedronNumber].nodeNumbering = new int [4];
@@ -138,7 +154,7 @@ void MeshConstruction3D::constructTetrahedron()
                     globalTetrahedron[globalTetrahedronNumber].nodeNumbering[2] = domainNode[domainNodeNumber + (xNumber + 1) + 1].globalNumbering;
                     globalTetrahedron[globalTetrahedronNumber].nodeNumbering[3] = domainNode[domainNodeNumber + (xNumber + 1) * (yNumber + 1) + (xNumber + 1) + 1].globalNumbering;
                     globalTetrahedronNumber++;
-
+	
                     // Local tetrahedron 2
                     globalTetrahedron.resize(globalTetrahedronNumber + 1);
                     globalTetrahedron[globalTetrahedronNumber].nodeNumbering = new int [4];
@@ -147,7 +163,7 @@ void MeshConstruction3D::constructTetrahedron()
                     globalTetrahedron[globalTetrahedronNumber].nodeNumbering[2] = domainNode[domainNodeNumber + (xNumber + 1) * (yNumber + 1) + (xNumber + 1)].globalNumbering;
                     globalTetrahedron[globalTetrahedronNumber].nodeNumbering[3] = domainNode[domainNodeNumber + (xNumber + 1) * (yNumber + 1) + (xNumber + 1) + 1].globalNumbering;
                     globalTetrahedronNumber++;
-
+	
                     // Local tetrahedron 3
                     globalTetrahedron.resize(globalTetrahedronNumber + 1);
                     globalTetrahedron[globalTetrahedronNumber].nodeNumbering = new int [4];
@@ -156,7 +172,7 @@ void MeshConstruction3D::constructTetrahedron()
                     globalTetrahedron[globalTetrahedronNumber].nodeNumbering[2] = domainNode[domainNodeNumber + (xNumber + 1) * (yNumber + 1) + (xNumber + 1) + 1].globalNumbering;
                     globalTetrahedron[globalTetrahedronNumber].nodeNumbering[3] = domainNode[domainNodeNumber + (xNumber + 1) * (yNumber + 1) + 1].globalNumbering;
                     globalTetrahedronNumber++;
-
+	
                     // Local tetrahedron 4
                     globalTetrahedron.resize(globalTetrahedronNumber + 1);
                     globalTetrahedron[globalTetrahedronNumber].nodeNumbering = new int [4];
@@ -165,7 +181,7 @@ void MeshConstruction3D::constructTetrahedron()
                     globalTetrahedron[globalTetrahedronNumber].nodeNumbering[2] = domainNode[domainNodeNumber + (xNumber + 1) * (yNumber + 1) + (xNumber + 1) + 1].globalNumbering;
                     globalTetrahedron[globalTetrahedronNumber].nodeNumbering[3] = domainNode[domainNodeNumber + (xNumber + 1) * (yNumber + 1) + (xNumber + 1)].globalNumbering;
                     globalTetrahedronNumber++;
-
+	
                     // Local tetrahedron 5
                     globalTetrahedron.resize(globalTetrahedronNumber + 1);
                     globalTetrahedron[globalTetrahedronNumber].nodeNumbering = new int [4];
@@ -176,8 +192,164 @@ void MeshConstruction3D::constructTetrahedron()
                     globalTetrahedronNumber++;
                 }
             };
-
+	
     domainNodeNumber = (xNumber + 1) * (yNumber + 1) * (zNumber + 1);
+
+	// globalTetrahedronNumber = 6 * (xNumber * yNumber * zNumber);
+
+	// int h;
+	// for (int iz = 0; iz < zNumber; iz++)
+	// 	for (int iy = 0; iy < yNumber; iy++)
+	// 		for (int ix = 0; ix < xNumber; ix++)
+	// 		{
+	// 			h = iz * (6 * yNumber * xNumber) + iy * (6 * xNumber) + ix * 6;
+
+	// 			globalTetrahedron.resize(h + 1);
+	// 			globalTetrahedron[h].nodeNumbering = new int [4];
+	// 			globalTetrahedron[h].nodeNumbering[0] = iz * (yNumber + 1) * (xNumber + 1) + iy * (xNumber + 1) + ix;
+	// 			globalTetrahedron[h].nodeNumbering[1] = iz * (yNumber + 1) * (xNumber + 1) + (iy + 1) * (xNumber + 1) + (ix + 1);
+	// 			globalTetrahedron[h].nodeNumbering[2] = iz * (yNumber + 1) * (xNumber + 1) + (iy + 1) * (xNumber + 1) + ix;
+	// 			globalTetrahedron[h].nodeNumbering[3] = (iz + 1) * (yNumber + 1) * (xNumber + 1) + (iy + 1) * (xNumber + 1) + (ix + 1);
+	// 			globalTetrahedron[h].boundaryType = 'N';
+	// 			globalTetrahedron[h].boundaryVertex = - 1;
+	// 			h++;
+
+	// 			globalTetrahedron.resize(h + 1);
+	// 			globalTetrahedron[h].nodeNumbering = new int [4];
+	// 			globalTetrahedron[h].nodeNumbering[0] = iz * (yNumber + 1) * (xNumber + 1) + iy * (xNumber + 1) + ix;
+	// 			globalTetrahedron[h].nodeNumbering[1] = iz * (yNumber + 1) * (xNumber + 1) + iy * (xNumber + 1) + (ix + 1);
+	// 			globalTetrahedron[h].nodeNumbering[2] = iz * (yNumber + 1) * (xNumber + 1) + (iy + 1) * (xNumber + 1) + (ix + 1);
+	// 			globalTetrahedron[h].nodeNumbering[3] = (iz + 1) * (yNumber + 1) * (xNumber + 1) + (iy + 1) * (xNumber + 1) + (ix + 1);
+	// 			globalTetrahedron[h].boundaryType = 'N';
+	// 			globalTetrahedron[h].boundaryVertex = - 1;
+	// 			h++;
+
+	// 			globalTetrahedron.resize(h + 1);
+	// 			globalTetrahedron[h].nodeNumbering = new int [4];
+	// 			globalTetrahedron[h].nodeNumbering[0] = iz * (yNumber + 1) * (xNumber + 1) + iy * (xNumber + 1) + ix;
+	// 			globalTetrahedron[h].nodeNumbering[1] = iz * (yNumber + 1) * (xNumber + 1) + (iy + 1) * (xNumber + 1) + ix;
+	// 			globalTetrahedron[h].nodeNumbering[2] = (iz + 1) * (yNumber + 1) * (xNumber + 1) + (iy + 1) * (xNumber + 1) + ix;
+	// 			globalTetrahedron[h].nodeNumbering[3] = (iz + 1) * (yNumber + 1) * (xNumber + 1) + (iy + 1) * (xNumber + 1) + (ix + 1);
+	// 			globalTetrahedron[h].boundaryType = 'N';
+	// 			globalTetrahedron[h].boundaryVertex = - 1;
+	// 			h++;
+
+	// 			globalTetrahedron.resize(h + 1);
+	// 			globalTetrahedron[h].nodeNumbering = new int [4];
+	// 			globalTetrahedron[h].nodeNumbering[0] = iz * (yNumber + 1) * (xNumber + 1) + iy * (xNumber + 1) + (ix + 1);
+	// 			globalTetrahedron[h].nodeNumbering[1] = (iz + 1) * (yNumber + 1) * (xNumber + 1) + iy * (xNumber + 1) + (ix + 1);
+	// 			globalTetrahedron[h].nodeNumbering[2] = (iz + 1) * (yNumber + 1) * (xNumber + 1) + (iy + 1) * (xNumber + 1) + (ix + 1);
+	// 			globalTetrahedron[h].nodeNumbering[3] = iz * (yNumber + 1) * (xNumber + 1) + iy * (xNumber + 1) + ix;
+	// 			globalTetrahedron[h].boundaryType = 'N';
+	// 			globalTetrahedron[h].boundaryVertex = - 1;
+	// 			h++;
+
+	// 			globalTetrahedron.resize(h + 1);
+	// 			globalTetrahedron[h].nodeNumbering = new int [4];
+	// 			globalTetrahedron[h].nodeNumbering[0] = (iz + 1) * (yNumber + 1) * (xNumber + 1) + iy * (xNumber + 1) + ix;
+	// 			globalTetrahedron[h].nodeNumbering[1] = (iz + 1) * (yNumber + 1) * (xNumber + 1) + (iy + 1) * (xNumber + 1) + ix;
+	// 			globalTetrahedron[h].nodeNumbering[2] = (iz + 1) * (yNumber + 1) * (xNumber + 1) + (iy + 1) * (xNumber + 1) + (ix + 1);
+	// 			globalTetrahedron[h].nodeNumbering[3] = iz * (yNumber + 1) * (xNumber + 1) + iy * (xNumber + 1) + ix;
+	// 			globalTetrahedron[h].boundaryType = 'N';
+	// 			globalTetrahedron[h].boundaryVertex = - 1;
+	// 			h++;
+
+	// 			globalTetrahedron.resize(h + 1);
+	// 			globalTetrahedron[h].nodeNumbering = new int [4];
+	// 			globalTetrahedron[h].nodeNumbering[0] = (iz + 1) * (yNumber + 1) * (xNumber + 1) + iy * (xNumber + 1) + ix;
+	// 			globalTetrahedron[h].nodeNumbering[1] = (iz + 1) * (yNumber + 1) * (xNumber + 1) + (iy + 1) * (xNumber + 1) + (ix + 1);
+	// 			globalTetrahedron[h].nodeNumbering[2] = (iz + 1) * (yNumber + 1) * (xNumber + 1) + iy * (xNumber + 1) + (ix + 1);
+	// 			globalTetrahedron[h].nodeNumbering[3] = iz * (yNumber + 1) * (xNumber + 1) + iy * (xNumber + 1) + ix;
+	// 			globalTetrahedron[h].boundaryType = 'N';
+	// 			globalTetrahedron[h].boundaryVertex = - 1;
+	// 			h++;
+	// 		}
+
+	// for (int iz = 0; iz < zNumber; iz++)
+	// 	for (int iy = 0; iy < yNumber; iy++)
+	// 		for (int ix = 0; ix < xNumber; ix++)
+	// 		{
+	// 			h = iz * (6 * yNumber * xNumber) + iy * (6 * xNumber) + ix * 6;
+
+	// 			globalTetrahedron[h].boundaryType = 'N';
+	// 			globalTetrahedron[h].boundaryVertex = - 1;
+
+	// 			// tetrahedron A
+	// 			if (iz == 0)
+	// 			{
+	// 				globalTetrahedron[h].boundaryType = 'D';
+	// 				globalTetrahedron[h].boundaryVertex = 3;
+	// 			}
+	// 			else if (iy == yNumber - 1)
+	// 			{
+	// 				globalTetrahedron[h].boundaryType = 'D';
+	// 				globalTetrahedron[h].boundaryVertex = 0;
+	// 			};
+	// 			h++;
+
+	// 			// tetrahedron B
+	// 			if (ix == xNumber - 1)
+	// 			{
+	// 				globalTetrahedron[h].boundaryType = 'C';
+	// 				globalTetrahedron[h].boundaryVertex = 0;
+	// 			}
+	// 			else if (iz == 0)
+	// 			{
+	// 				globalTetrahedron[h].boundaryType = 'D';
+	// 				globalTetrahedron[h].boundaryVertex = 3;
+	// 			}
+	// 			h++;
+
+	// 			// tetrahedron C
+	// 			if (ix == 0)
+	// 			{
+	// 				globalTetrahedron[h].boundaryType = 'A';
+	// 				globalTetrahedron[h].boundaryVertex = 3;
+	// 			}
+	// 			else if (iy == yNumber - 1)
+	// 			{
+	// 				globalTetrahedron[h].boundaryType = 'D';
+	// 				globalTetrahedron[h].boundaryVertex = 0;
+	// 			};
+	// 			h++;
+
+	// 			// tetrahedron D
+	// 			if (ix == xNumber - 1)
+	// 			{
+	// 				globalTetrahedron[h].boundaryType = 'C';
+	// 				globalTetrahedron[h].boundaryVertex = 3;
+	// 			}
+	// 			else if (iy == 0)
+	// 			{
+	// 				globalTetrahedron[h].boundaryType = 'D';
+	// 				globalTetrahedron[h].boundaryVertex = 2;
+	// 			};
+	// 			h++;
+
+	// 			// tetrahedron E
+	// 			if (ix == 0)
+	// 			{
+	// 				globalTetrahedron[h].boundaryType = 'A';
+	// 				globalTetrahedron[h].boundaryVertex = 2;
+	// 			}
+	// 			else if (iz == zNumber - 1)
+	// 			{
+	// 				globalTetrahedron[h].boundaryType = 'D';
+	// 				globalTetrahedron[h].boundaryVertex = 3;
+	// 			}
+
+	// 			// tetrahedron F
+	// 			if (iy == 0)
+	// 			{
+	// 				globalTetrahedron[h].boundaryType = 'D';
+	// 				globalTetrahedron[h].boundaryVertex = 1;
+	// 			}
+	// 			else if (iz == zNumber - 1)
+	// 			{
+	// 				globalTetrahedron[h].boundaryType = 'D';
+	// 				globalTetrahedron[h].boundaryVertex = 3;
+	// 			}
+	// 		}
 }
 
 bool MeshConstruction3D::verticesOnBoundary(const int & h, const int & j0, const int & j1, const int & j2, char & boundary_Type) const
@@ -335,7 +507,7 @@ void MeshConstruction3D::determineBoundaryVertex()
     {
         char boundaryType = 'N';
         globalTetrahedron[h].boundaryVertex = - 1;
-
+	
         if (verticesOnBoundary(h, 1, 2, 3, boundaryType))
         {
             globalTetrahedron[h].boundaryVertex = 0;
@@ -352,20 +524,25 @@ void MeshConstruction3D::determineBoundaryVertex()
         {
             globalTetrahedron[h].boundaryVertex = 3;
         };
-
+	
         globalTetrahedron[h].boundaryType = boundaryType;
     };
 
-    /*/
-    ofstream Test_Tetrahedron;
-    Test_Tetrahedron.open("./Output/Test_Tetrahedron.txt");
-    Test_Tetrahedron << globalTetrahedronNumber << endl;
-    for (int h = 0; h < globalTetrahedronNumber; h++)
-        Test_Tetrahedron << setw(10) << globalTetrahedron[h].nodeNumbering[0] << setw(10) << globalTetrahedron[h].nodeNumbering[1]
-                            << setw(10) << globalTetrahedron[h].nodeNumbering[2] << setw(10) << globalTetrahedron[h].nodeNumbering[3]
-                            << setw(10) << globalTetrahedron[h].boundaryVertex << endl;
-    Test_Tetrahedron.close();
-    /**/
+	// int i = 0;
+	// for (int iz = 0; iz <= zNumber; iz++)
+	// 	for (int iy = 0; iy <= yNumber; iy++)
+	// 		for (int ix = 0; ix <= xNumber; ix++)
+	// 		{
+	// 			if (ix == 0)
+	// 				globalNode[i].boundary = 'A';
+	// 			else if (ix == xNumber)
+	// 				globalNode[i].boundary = 'C';
+	// 			else if (iy == 0 || iy == yNumber || iz == 0 || iz == zNumber)
+	// 				globalNode[i].boundary = 'D';
+	// 			else
+	// 				globalNode[i].boundary = 'N';
+	// 			i++;
+	// 		}
 }
 
 void MeshConstruction3D::mappingCubeToSphere()
@@ -373,10 +550,6 @@ void MeshConstruction3D::mappingCubeToSphere()
     double theta;
     double phi;
     double arbitraryRadius;
-
-    //ofstream Testing_Node;
-    //Testing_Node.open("./Output/Testing_Node.txt");
-    //Testing_Node << globalNodeNumber << endl;
 
     for (int i = 0; i < globalNodeNumber; i++)
     {
@@ -405,11 +578,7 @@ void MeshConstruction3D::mappingCubeToSphere()
         globalNode[i].coordinate[0] = arbitraryRadius * sin(theta) * cos(phi);
         globalNode[i].coordinate[1] = arbitraryRadius * sin(theta) * sin(phi);
         globalNode[i].coordinate[2] = arbitraryRadius * cos(theta);
-
-        //Testing_Node << setw(20) << phi << setw(20) << theta
-        //                << setw(20) << globalNode[i].coordinate[0] << setw(20) << globalNode[i].coordinate[1] << setw(20) << globalNode[i].coordinate[2] << endl;
     };
-    //Testing_Node.close();
 }
 
 void MeshConstruction3D::constructCrossSection()
@@ -455,12 +624,14 @@ void MeshConstruction3D::calculateTetrahedronVolume()
                                                             * (globalNode[globalTetrahedron[h].nodeNumbering[(j - 1) % 4]].coordinate[2] - globalNode[globalTetrahedron[h].nodeNumbering[(j + 1) % 4]].coordinate[2])
                                                         - (globalNode[globalTetrahedron[h].nodeNumbering[(j - 1) % 4]].coordinate[1] - globalNode[globalTetrahedron[h].nodeNumbering[(j + 1) % 4]].coordinate[1])
                                                             * (globalNode[globalTetrahedron[h].nodeNumbering[(j + 2) % 4]].coordinate[2] - globalNode[globalTetrahedron[h].nodeNumbering[(j + 1) % 4]].coordinate[2]))
-                                                + (globalNode[globalTetrahedron[h].nodeNumbering[j]].coordinate[1] - globalNode[globalTetrahedron[h].nodeNumbering[(j + 1) % 4]].coordinate[1])
+
+												+ (globalNode[globalTetrahedron[h].nodeNumbering[j]].coordinate[1] - globalNode[globalTetrahedron[h].nodeNumbering[(j + 1) % 4]].coordinate[1])
                                                     * ((globalNode[globalTetrahedron[h].nodeNumbering[(j - 1) % 4]].coordinate[0] - globalNode[globalTetrahedron[h].nodeNumbering[(j + 1) % 4]].coordinate[0])
                                                             * (globalNode[globalTetrahedron[h].nodeNumbering[(j + 2) % 4]].coordinate[2] - globalNode[globalTetrahedron[h].nodeNumbering[(j + 1) % 4]].coordinate[2])
                                                         - (globalNode[globalTetrahedron[h].nodeNumbering[(j + 2) % 4]].coordinate[0] - globalNode[globalTetrahedron[h].nodeNumbering[(j + 1) % 4]].coordinate[0])
                                                             * (globalNode[globalTetrahedron[h].nodeNumbering[(j - 1) % 4]].coordinate[2] - globalNode[globalTetrahedron[h].nodeNumbering[(j + 1) % 4]].coordinate[2]))
-                                                + (globalNode[globalTetrahedron[h].nodeNumbering[j]].coordinate[2] - globalNode[globalTetrahedron[h].nodeNumbering[(j + 1) % 4]].coordinate[2])
+
+												+ (globalNode[globalTetrahedron[h].nodeNumbering[j]].coordinate[2] - globalNode[globalTetrahedron[h].nodeNumbering[(j + 1) % 4]].coordinate[2])
                                                     * ((globalNode[globalTetrahedron[h].nodeNumbering[(j + 2) % 4]].coordinate[0] - globalNode[globalTetrahedron[h].nodeNumbering[(j + 1) % 4]].coordinate[0])
                                                             * (globalNode[globalTetrahedron[h].nodeNumbering[(j - 1) % 4]].coordinate[1] - globalNode[globalTetrahedron[h].nodeNumbering[(j + 1) % 4]].coordinate[1])
                                                         - (globalNode[globalTetrahedron[h].nodeNumbering[(j - 1) % 4]].coordinate[0] - globalNode[globalTetrahedron[h].nodeNumbering[(j + 1) % 4]].coordinate[0])
@@ -472,10 +643,10 @@ void MeshConstruction3D::printTetrahedron() const
 {
 	ofstream outputTetrahedron;
 	string emptyspace = " ";
-	outputTetrahedron.open("Tetrahedron " + to_string(globalTetrahedronNumber) + ".txt");
+	outputTetrahedron.open("Tetrahedron " + to_string(xNumber) + ".txt");
 	outputTetrahedron << globalTetrahedronNumber << endl;
 	for (int h = 0; h < globalTetrahedronNumber; h++)
-		outputTetrahedron << showpoint << setprecision(10) << setw(20) << globalTetrahedron[h].volume
+		outputTetrahedron << showpoint << setprecision(10) << setw(30) << globalTetrahedron[h].volume
 						<< setw(10) << globalTetrahedron[h].boundaryVertex << setw(10) << globalTetrahedron[h].boundaryType << endl;
 	outputTetrahedron.close();
 }
@@ -484,7 +655,7 @@ void MeshConstruction3D::printNode() const
 {
 	ofstream outputNode;
 	string emptyspace = " ";
-	outputNode.open("Node " + to_string(globalNodeNumber) + ".txt");
+	outputNode.open("Node " + to_string(xNumber) + ".txt");
 	outputNode << globalNodeNumber << endl;
     for (int i = 0; i < globalNodeNumber; i++)
 		outputNode << showpoint << setprecision(10) << setw(6) << globalNode[i].boundary << endl;
