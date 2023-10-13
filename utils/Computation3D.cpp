@@ -2255,7 +2255,7 @@ void Computation3D::boundaryCondition(const int & UVARIABLE_LEVEL)
 {
 	for (int i = 0; i < nodeNumber; i++)
 	{
-		if (node[i].boundary == 'A' || node[i].boundary == 'C' || node[i].boundary == 'D')
+		if (node[i].boundary == 'A' || node[i].boundary == 'C' || node[i].boundary == 'D' || node[i].boundary == 'B')
 		{
             timeDependentSolution(i, UVARIABLE_LEVEL, time);
 		};
@@ -2351,34 +2351,8 @@ void Computation3D::finiteVolumeNodalUpdate()
 	// 		node[i].conservedVariable[ki][1] = node[i].conservedVariable[ki][2];
 }
 
-void Computation3D::fluxDifferenceNodalUpdate()
+void Computation3D::fluxDifferenceNodalUpdate(const int & timeStep)
 {
-	// /*/ Runge-Kutta Stage-1 /**/
-	// calculateGradient(1);
-	// // calculateHessian(1);
-	// calculateFluxDifference(1);
-	// calculateFluxDifferenceBoundaryFlux(1);
-	// for (int i = 0; i < nodeNumber; i++)
-	// 	for (int ki = 0; ki < 6; ki++)
-	// 		node[i].conservedVariable[ki][2] = node[i].conservedVariable[ki][1] - ((timeDelta / 2.0) / node[i].volume) * (node[i].fluxResidual[ki] - node[i].dissipation[ki]);
-	// time -= timeDelta / 2.0;
-	// boundaryCondition(2);
-	
-	// /*/ Runge-Kutta Stage-2 /**/
-	// calculateGradient(2);
-	// // calculateHessian(2);
-	// calculateFluxDifference(2);
-	// calculateFluxDifferenceBoundaryFlux(2);
-	// for (int i = 0; i < nodeNumber; i++)
-	// 	for (int ki = 0; ki < 6; ki++)
-	// 		node[i].conservedVariable[ki][2] = node[i].conservedVariable[ki][1] - (timeDelta / node[i].volume) * (node[i].fluxResidual[ki] - node[i].dissipation[ki]);
-	// time += timeDelta / 2.0;
-	// boundaryCondition(2);
-	
-	// for (int i = 0; i < nodeNumber; i++)
-	// 	for (int ki = 0; ki < 6; ki++)
-	// 		node[i].conservedVariable[ki][1] = node[i].conservedVariable[ki][2];
-	
 	/*/ (1/3) Simpson's Rule /**/
     double** k1 = new double* [nodeNumber];
     double** k2 = new double* [nodeNumber];
@@ -2390,8 +2364,6 @@ void Computation3D::fluxDifferenceNodalUpdate()
     };
     
     /*/ Simpson's Rule Stage-1: (tn, yn) /**/
-    calculateGradient(1);
-    // calculateHessian(1);
     calculateFluxDifference(1);
     calculateFluxDifferenceBoundaryFlux(1);
     for (int i = 0; i < nodeNumber; i++)
@@ -2403,8 +2375,6 @@ void Computation3D::fluxDifferenceNodalUpdate()
     boundaryCondition(2);
     
     /*/ Simpson's Rule Stage-2: (t + tdelta / 2, y + tdelta * k1) /**/
-    calculateGradient(2);
-    // calculateHessian(2);
     calculateFluxDifference(2);
     calculateFluxDifferenceBoundaryFlux(2);
     for (int i = 0; i < nodeNumber; i++)
@@ -2416,8 +2386,6 @@ void Computation3D::fluxDifferenceNodalUpdate()
     boundaryCondition(2);
     
     /*/ Simpson's Rule Stage-3: (t + tdelta, y + tdelta * k2) /**/
-    calculateGradient(2);
-    // calculateHessian(2);
     calculateFluxDifference(2);
     calculateFluxDifferenceBoundaryFlux(2);
     for (int i = 0; i < nodeNumber; i++)
@@ -2429,6 +2397,26 @@ void Computation3D::fluxDifferenceNodalUpdate()
     	for (int ki = 0; ki < 6; ki++)
     		node[i].conservedVariable[ki][2] = node[i].conservedVariable[ki][1] - (timeDelta / node[i].volume) * (k1[i][ki] + 4.0 * k2[i][ki] + k3[i][ki]) / 6.0;
     boundaryCondition(2);
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+	// compute the amplificationFactor
+	for (int ki = 0; ki < 6; ki++)
+		amplificationFactor[timeStep][ki] = 0.0;
+	int count = 0;
+    for (int i = 0; i < nodeNumber; i++)
+    	for (int ki = 0; ki < 6; ki++)
+		{
+			float amplification_numerator = node[i].conservedVariable[ki][1] - (timeDelta / node[i].volume) * ((k1[i][ki] + 2.0 * k2[i][ki]) / 6.0);
+			float amplification_denominator = node[i].conservedVariable[ki][2] + (timeDelta / node[i].volume) * ((2.0 * k2[i][ki] + k3[i][ki]) / 6.0);
+        	if (amplification_denominator != 0.0)
+			{
+				amplificationFactor[timeStep][ki] = amplificationFactor[timeStep][ki] + amplification_numerator / amplification_denominator;
+				count++;
+			}
+		};
+	if (count != 0)
+		for (int ki = 0; ki < 6; ki++)
+			amplificationFactor[timeStep][ki] = amplificationFactor[timeStep][ki] / nodeNumber;
     
     for (int i = 0; i < nodeNumber; i++) {
         delete [] k1[i]; k1[i] = NULL;
@@ -2810,8 +2798,12 @@ void Computation3D::timeComputations(const char & TM_TE_Mode, const char & Metho
 	// timeDelta = timeLast / timeNumber;
 
 	timeNumber = static_cast <int> (timeLast / timeDelta);
-
 	time = 0.0;
+
+	// construct the **amplificationFactor pointer
+	amplificationFactor = new float* [timeNumber];
+	for (int t = 0; t < timeNumber; t++)
+		amplificationFactor[t] = new float [6];
 
     spatialSolution();
     fieldInitialization();
@@ -2859,7 +2851,7 @@ void Computation3D::timeComputations(const char & TM_TE_Mode, const char & Metho
         {
             time = t * timeDelta;
             cout << "Time is " << time << endl;
-            fluxDifferenceNodalUpdate();
+            fluxDifferenceNodalUpdate(t - 1);
             intervalResults(time05, time1, time15, time2);
         };
 		double sum = 0.0;
@@ -2870,6 +2862,25 @@ void Computation3D::timeComputations(const char & TM_TE_Mode, const char & Metho
 		L2Errors << showpoint << setprecision(10) << log10(sqrt(sum / nodeNumber)) << endl;
 		L2Errors.close();
     };
+	// output the amplificationFactor to .csv file
+	ofstream amplificationFactorFile;
+	amplificationFactorFile.open("AmplificationFactor_3D.csv");
+	amplificationFactorFile << "time,U1,U2,U3,U4,U5,U6\n";
+	for (int t = 0; t < timeNumber; t++)
+	{
+		amplificationFactorFile << (t + 1) * timeDelta;
+		for (int ki = 0; ki < 6; ki++)
+			amplificationFactorFile << "," << amplificationFactor[t][ki];
+		amplificationFactorFile << "\n";		
+	};
+	amplificationFactorFile.close();
+	// destruct the **amplificationFactor pointer
+	for (int t = 0; t < timeNumber; t++)
+    {
+        delete [] amplificationFactor[t]; amplificationFactor[t] = NULL;
+    };
+    delete [] amplificationFactor; amplificationFactor = NULL;
+
 	ofstream results;
 	// print 3D results
 	switch (method)
@@ -3022,5 +3033,5 @@ void Computation3D::timeComputations(const char & TM_TE_Mode, const char & Metho
 	outputTime << "The execution time is " << static_cast <double> ((clock() - STARTTIME) / static_cast <double> (CLOCKS_PER_SEC)) << ". " << endl;
 	outputTime.close();
 	errorsCalculation();
-  /**/
+  	/**/
 }

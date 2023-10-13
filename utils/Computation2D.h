@@ -49,7 +49,7 @@ class Computation2D: public Initialization2D
 		double toleranceCalculation(double** const &) const;
 		void boundaryCondition(const int &);
 		void finiteVolumeNodalUpdate();
-		void fluxDifferenceNodalUpdate();
+		void fluxDifferenceNodalUpdate(const int &);
 		void errorsCalculation();
 		void printResults() const;
 		void intervalResults(bool &, bool &, bool &, bool &) const;
@@ -69,5 +69,6 @@ class Computation2D: public Initialization2D
 		double angularFrequency = propagationCoefficient / sqrt(permittivity * permeability);
 		double speed = 1.0 / sqrt(permittivity * permeability);
 		double impedance = sqrt(permeability / permittivity);
+		float** amplificationFactor;
 };
 # endif

@@ -1571,7 +1571,7 @@ double Computation2D::toleranceCalculation(double** const & totalResidual) const
 void Computation2D::boundaryCondition(const int & UVARIABLE_LEVEL)
 {
 	for (int i = 0; i < nodeNumber; i++)
-		if (node[i].boundary == 'A' || node[i].boundary == 'C' || node[i].boundary == 'D')
+		if (node[i].boundary == 'A' || node[i].boundary == 'C' || node[i].boundary == 'D' || node[i].boundary == 'B')
 		    timeDependentSolution(i, 2, time);
 }
 
@@ -1664,117 +1664,8 @@ void Computation2D::finiteVolumeNodalUpdate()
 	// 		node[i].conservedVariable[ki][1] = node[i].conservedVariable[ki][2];
 }
 
-void Computation2D::fluxDifferenceNodalUpdate()
+void Computation2D::fluxDifferenceNodalUpdate(const int & timeStep)
 {
-   	// /*/ Runge-Kutta Stage-1 /**/
-	// calculateGradient(1);
-	// // calculateHessian(1);
-	// calculateFluxDifference(1);
-	// calculateFluxDifferenceBoundaryFlux(1);
-	// for (int i = 0; i < nodeNumber; i++)
-	// 	for (int ki = 0; ki < 3; ki++)
-	// 		node[i].conservedVariable[ki][2] = node[i].conservedVariable[ki][1] - ((timeDelta / 2.0) / node[i].nodeArea) * (node[i].fluxResidual[ki] - node[i].dissipation[ki]);
-	// time -= timeDelta / 2.0;
-	// boundaryCondition(2);
-	
-	// /*/ Runge-Kutta Stage-2 /**/
-	// calculateGradient(2);
-	// // calculateHessian(2);
-	// calculateFluxDifference(2);
-	// calculateFluxDifferenceBoundaryFlux(2);
-	// for (int i = 0; i < nodeNumber; i++)
-	// 	for (int ki = 0; ki < 3; ki++)
-	// 		node[i].conservedVariable[ki][2] = node[i].conservedVariable[ki][1] - (timeDelta / node[i].nodeArea) * (node[i].fluxResidual[ki] - node[i].dissipation[ki]);
-	// time += timeDelta / 2.0;
-	// boundaryCondition(2);
-	
-	// for (int i = 0; i < nodeNumber; i++)
-	// 	for (int ki = 0; ki < 3; ki++)
-	// 		node[i].conservedVariable[ki][1] = node[i].conservedVariable[ki][2];
-
-
-    // /*/ 4-stage Runge-Kutta /**/
-    // double** k1 = new double* [nodeNumber];
-    // double** k2 = new double* [nodeNumber];
-    // double** k3 = new double* [nodeNumber];
-    // double** k4 = new double* [nodeNumber];
-    // for (int i = 0; i < nodeNumber; i++) {
-    //     k1[i] = new double [3];
-    //     k2[i] = new double [3];
-    //     k3[i] = new double [3];
-    //     k4[i] = new double [3];
-    // };
-    
-    // /*/ Runge-Kutta Stage-1: (tn, yn) /**/
-    // calculateGradient(1);
-    // calculateHessian(1);
-    // calculateFluxDifference(1);
-    // calculateFluxDifferenceBoundaryFlux(1);
-    // for (int i = 0; i < nodeNumber; i++)
-    // 	for (int ki = 0; ki < 3; ki++) {
-    // 		k1[i][ki] = node[i].fluxResidual[ki] - node[i].dissipation[ki];
-    // 		node[i].conservedVariable[ki][2] = node[i].conservedVariable[ki][1] - (timeDelta / node[i].nodeArea) * (k1[i][ki] / 2.0);
-    // 	};
-	// time -= (timeDelta / 2.0);
-    // boundaryCondition(2);
-    
-    // /*/ Runge-Kutta Stage-2: (t + tdelta / 2, y + tdelta * k1 / 2) /**/
-    // calculateGradient(2);
-    // calculateHessian(2);
-    // calculateFluxDifference(2);
-    // calculateFluxDifferenceBoundaryFlux(2);
-    // for (int i = 0; i < nodeNumber; i++)
-    // 	for (int ki = 0; ki < 3; ki++) {
-    // 		k2[i][ki] = node[i].fluxResidual[ki] - node[i].dissipation[ki];
-    // 		node[i].conservedVariable[ki][2] = node[i].conservedVariable[ki][1] - (timeDelta / node[i].nodeArea) * (k2[i][ki] / 2.0);
-    // 	};
-    // boundaryCondition(2);
-    
-    // /*/ Runge-Kutta Stage-3: (t + tdelta / 2, y + tdelta * k2 / 2) /**/
-    // calculateGradient(2);
-    // calculateHessian(2);
-    // calculateFluxDifference(2);
-    // calculateFluxDifferenceBoundaryFlux(2);
-    // for (int i = 0; i < nodeNumber; i++)
-    // 	for (int ki = 0; ki < 3; ki++) {
-    // 		k3[i][ki] = node[i].fluxResidual[ki] - node[i].dissipation[ki];
-    // 		node[i].conservedVariable[ki][2] = node[i].conservedVariable[ki][1] - (timeDelta / node[i].nodeArea) * k3[i][ki];
-    // 	};
-	// time += (timeDelta / 2.0);
-    // boundaryCondition(2);
-    
-    // /*/ Runge-Kutta Stage-4: (t + tdelta, y + tdelta * k3) /**/
-    // calculateGradient(2);
-    // calculateHessian(2);
-    // calculateFluxDifference(2);
-    // calculateFluxDifferenceBoundaryFlux(2);
-    // for (int i = 0; i < nodeNumber; i++)
-    // 	for (int ki = 0; ki < 3; ki++) {
-    // 		k4[i][ki] = node[i].fluxResidual[ki] - node[i].dissipation[ki];
-    // 	};
-    
-    // for (int i = 0; i < nodeNumber; i++)
-    // 	for (int ki = 0; ki < 3; ki++)
-    // 		node[i].conservedVariable[ki][2] = node[i].conservedVariable[ki][1] - (timeDelta / node[i].nodeArea) * (k1[i][ki] + 2.0 * k2[i][ki] + 2.0 * k3[i][ki] + k4[i][ki]) / 6.0;
-    // boundaryCondition(2);
-    
-    // for (int i = 0; i < nodeNumber; i++) {
-    //     delete [] k1[i]; k1[i] = NULL;
-    //     delete [] k2[i]; k2[i] = NULL;
-    //     delete [] k3[i]; k3[i] = NULL;
-    //     delete [] k4[i]; k4[i] = NULL;
-    // };
-    // delete [] k1; k1 = NULL;
-    // delete [] k2; k2 = NULL;
-    // delete [] k3; k3 = NULL;
-    // delete [] k4; k4 = NULL;
-    
-    
-    // for (int i = 0; i < nodeNumber; i++)
-    // 	for (int ki = 0; ki < 3; ki++)
-    // 		node[i].conservedVariable[ki][1] = node[i].conservedVariable[ki][2];
-
-
 	/*/ (1/3) Simpson's Rule /**/
     double** k1 = new double* [nodeNumber];
     double** k2 = new double* [nodeNumber];
@@ -1786,8 +1677,6 @@ void Computation2D::fluxDifferenceNodalUpdate()
     };
     
     /*/ Simpson's Rule Stage-1: (tn, yn) /**/
-    calculateGradient(1);
-    // calculateHessian(1);
     calculateFluxDifference(1);
     calculateFluxDifferenceBoundaryFlux(1);
     for (int i = 0; i < nodeNumber; i++)
@@ -1799,8 +1688,6 @@ void Computation2D::fluxDifferenceNodalUpdate()
     boundaryCondition(2);
     
     /*/ Simpson's Rule Stage-2: (t + tdelta / 2, y + tdelta * k1) /**/
-    calculateGradient(2);
-    // calculateHessian(2);
     calculateFluxDifference(2);
     calculateFluxDifferenceBoundaryFlux(2);
     for (int i = 0; i < nodeNumber; i++)
@@ -1812,8 +1699,6 @@ void Computation2D::fluxDifferenceNodalUpdate()
     boundaryCondition(2);
     
     /*/ Simpson's Rule Stage-3: (t + tdelta, y + tdelta * k2) /**/
-    calculateGradient(2);
-    // calculateHessian(2);
     calculateFluxDifference(2);
     calculateFluxDifferenceBoundaryFlux(2);
     for (int i = 0; i < nodeNumber; i++)
@@ -1825,6 +1710,26 @@ void Computation2D::fluxDifferenceNodalUpdate()
     	for (int ki = 0; ki < 3; ki++)
     		node[i].conservedVariable[ki][2] = node[i].conservedVariable[ki][1] - (timeDelta / node[i].nodeArea) * (k1[i][ki] + 4.0 * k2[i][ki] + k3[i][ki]) / 6.0;
     boundaryCondition(2);
+
+	// //////////////////////////////////////////////////////////////////////////////////////////////////
+	// compute the amplificationFactor
+	for (int ki = 0; ki < 3; ki++)
+		amplificationFactor[timeStep][ki] = 0.0;
+	int count = 0;
+    for (int i = 0; i < nodeNumber; i++)
+    	for (int ki = 0; ki < 3; ki++)
+		{
+			float amplification_numerator = node[i].conservedVariable[ki][1] - (timeDelta / node[i].nodeArea) * ((k1[i][ki] + 2.0 * k2[i][ki]) / 6.0);
+			float amplification_denominator = node[i].conservedVariable[ki][2] + (timeDelta / node[i].nodeArea) * ((2.0 * k2[i][ki] + k3[i][ki]) / 6.0);
+        	if (amplification_denominator != 0.0)
+			{
+				amplificationFactor[timeStep][ki] = amplificationFactor[timeStep][ki] + amplification_numerator / amplification_denominator;
+				count++;
+			}
+		};
+	if (count != 0)
+		for (int ki = 0; ki < 3; ki++)
+			amplificationFactor[timeStep][ki] = amplificationFactor[timeStep][ki] / nodeNumber;
     
     for (int i = 0; i < nodeNumber; i++) {
         delete [] k1[i]; k1[i] = NULL;
@@ -2161,6 +2066,11 @@ void Computation2D::timeIterations(const char & TM_TE_Mode, const char & Method,
     timeNumber = static_cast<int> (timeLast / timeDelta);
 	time = 0.0;
 
+	// construct the **amplificationFactor pointer
+	amplificationFactor = new float* [timeNumber];
+	for (int t = 0; t < timeNumber; t++)
+		amplificationFactor[t] = new float [3];
+
 	spatialSolution();
 	fieldInitialization();
 
@@ -2205,7 +2115,7 @@ void Computation2D::timeIterations(const char & TM_TE_Mode, const char & Method,
         {
             time = t * timeDelta;
             cout << "Time is " << time << endl;
-            fluxDifferenceNodalUpdate();
+            fluxDifferenceNodalUpdate(t - 1);
 
             intervalResults(time05, time1, time15, time2);
         };
@@ -2287,6 +2197,25 @@ void Computation2D::timeIterations(const char & TM_TE_Mode, const char & Method,
         };
         L2Errors << log10(sqrt(sum / nodeNumber)) << endl;
 	};
+	// output the amplificationFactor to .csv file
+	ofstream amplificationFactorFile;
+	amplificationFactorFile.open("AmplificationFactor_2D.csv");
+	amplificationFactorFile << "time,U1,U2,U3\n";
+	for (int t = 0; t < timeNumber; t++)
+	{
+		amplificationFactorFile << (t + 1) * timeDelta;
+		for (int ki = 0; ki < 3; ki++)
+			amplificationFactorFile << "," << amplificationFactor[t][ki];
+		amplificationFactorFile << "\n";		
+	};
+	amplificationFactorFile.close();
+
+	// destruct the **amplificationFactor pointer
+	for (int t = 0; t < timeNumber; t++)
+    {
+        delete [] amplificationFactor[t]; amplificationFactor[t] = NULL;
+    };
+    delete [] amplificationFactor; amplificationFactor = NULL;
 
 	outputTime << "The global time step is " << timeDelta << endl;
 	outputTime << "The execution time is " << static_cast <double> ((clock() - STARTTIME) / static_cast <double> (CLOCKS_PER_SEC)) << ". " << endl;

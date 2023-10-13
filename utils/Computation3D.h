@@ -54,7 +54,7 @@ class Computation3D: public Initialization3D
 		void calculateFluxDifferenceBoundaryFlux(const int &);
 		void boundaryCondition(const int &);
 		void finiteVolumeNodalUpdate();
-		void fluxDifferenceNodalUpdate();
+		void fluxDifferenceNodalUpdate(const int &);
 		void interpolateCrossSection();
 		void errorsCalculation();
 		void printResults() const;
@@ -79,5 +79,6 @@ class Computation3D: public Initialization3D
 		double propagationCoefficient = M_PI;
 		double angularFrequency = propagationCoefficient / sqrt(permeability * permittivity);
 		double impedance = sqrt(permeability / permittivity);
+		float** amplificationFactor;
 };
 # endif

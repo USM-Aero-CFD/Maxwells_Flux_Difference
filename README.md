@@ -54,9 +54,9 @@ This is a repository which solves the 2D and 3D Maxwell's equations using the RD
 1.  For more numerical details, kindly refer to the paper **Compact second-order schemes for the electomagnetic waves on unstructured grids**.
 
 ## Results
-## 2D Test Cases
+### 2D Test Cases
 1. Test case of second-order finite-volume (interpolation with computed gradient) on structured triangular mesh, with `timeLast = 0.5` using 1/3 Simpson's rule time-integration gives
-    |   Grid Size   |   Time Delta   |   log10 deltaX   |   log10 L2   |
+    |   Grid Size   |   Time Delta   |   log10 deltaX   |   log10 L2   |    Execution time (s)    |
     |   ---    |    ---    |   ---   |    ---    |    ---    |
     |   0.05    |   0.01 |   -1.3010   |   -2.7268    |    0.4554    |
     |   0.0333  |   0.01 |   -1.4771   |   -3.0724    |    1.0537    |
@@ -81,7 +81,7 @@ This is a repository which solves the 2D and 3D Maxwell's equations using the RD
     |   0.025  |   0.01 |   -1.6021   |   -2.5125    |    0.8167    |
 
 
-## 3D Test Cases
+### 3D Test Cases
 1. Test case of second-order finite-volume (interpolation with computed gradient) on structured triangular mesh, with `timeLast = 0.5` using 1/3 Simpson's rule time-integration gives
     |   Grid Size   |   Time Delta   |   log10 deltaX   |   log10 L2   |    Execution time (s)    |
     |   ---    |    ---    |   ---   |    ---    |    ---    |
